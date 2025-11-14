@@ -1,6 +1,6 @@
 use serde::de::DeserializeOwned;
 
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{
+use chromiumoxide_cdp::cdp::js_protocol::runtime::{
     CallFunctionOnParams, EvaluateParams, RemoteObject,
 };
 

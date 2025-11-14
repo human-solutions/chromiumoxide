@@ -1,5 +1,5 @@
-use spider_chromiumoxide_cdp::cdp::browser_protocol::network::{InterceptionId, RequestId, Response};
-use spider_chromiumoxide_cdp::cdp::browser_protocol::page::FrameId;
+use chromiumoxide_cdp::cdp::browser_protocol::network::{InterceptionId, RequestId, Response};
+use chromiumoxide_cdp::cdp::browser_protocol::page::FrameId;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

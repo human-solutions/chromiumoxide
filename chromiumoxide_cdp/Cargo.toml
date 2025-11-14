@@ -11,6 +11,9 @@ repository = "https://github.com/mattsse/chromiumoxide"
 readme = "../README.md"
 include = ["src/**/*", "*.pdl", "LICENSE-*"]
 
+[lib]
+name = "chromiumoxide_cdp"
+
 [features]
 serde0 = []
 

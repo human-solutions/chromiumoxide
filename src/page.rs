@@ -5,26 +5,26 @@ use futures::channel::mpsc::unbounded;
 use futures::channel::oneshot::channel as oneshot_channel;
 use futures::{stream, SinkExt, StreamExt};
 
-use spider_chromiumoxide_cdp::cdp::browser_protocol::dom::*;
-use spider_chromiumoxide_cdp::cdp::browser_protocol::emulation::{
+use chromiumoxide_cdp::cdp::browser_protocol::dom::*;
+use chromiumoxide_cdp::cdp::browser_protocol::emulation::{
     MediaFeature, SetEmulatedMediaParams, SetGeolocationOverrideParams, SetLocaleOverrideParams,
     SetTimezoneOverrideParams,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::network::{
+use chromiumoxide_cdp::cdp::browser_protocol::network::{
     Cookie, CookieParam, DeleteCookiesParams, GetCookiesParams, SetCookiesParams,
     SetUserAgentOverrideParams,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::page::*;
-use spider_chromiumoxide_cdp::cdp::browser_protocol::performance::{GetMetricsParams, Metric};
-use spider_chromiumoxide_cdp::cdp::browser_protocol::target::{SessionId, TargetId};
-use spider_chromiumoxide_cdp::cdp::js_protocol;
-use spider_chromiumoxide_cdp::cdp::js_protocol::debugger::GetScriptSourceParams;
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{
+use chromiumoxide_cdp::cdp::browser_protocol::page::*;
+use chromiumoxide_cdp::cdp::browser_protocol::performance::{GetMetricsParams, Metric};
+use chromiumoxide_cdp::cdp::browser_protocol::target::{SessionId, TargetId};
+use chromiumoxide_cdp::cdp::js_protocol;
+use chromiumoxide_cdp::cdp::js_protocol::debugger::GetScriptSourceParams;
+use chromiumoxide_cdp::cdp::js_protocol::runtime::{
     AddBindingParams, CallArgument, CallFunctionOnParams, EvaluateParams, ExecutionContextId,
     RemoteObjectType, ScriptId,
 };
-use spider_chromiumoxide_cdp::cdp::{browser_protocol, IntoEventKind};
-use spider_chromiumoxide_types::*;
+use chromiumoxide_cdp::cdp::{browser_protocol, IntoEventKind};
+use chromiumoxide_types::*;
 
 use crate::auth::Credentials;
 use crate::element::Element;
@@ -222,7 +222,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::browser_protocol::animation::EventAnimationCanceled;
+    /// # use chromiumoxide_cdp::cdp::browser_protocol::animation::EventAnimationCanceled;
     /// # use futures::StreamExt;
     /// # async fn demo(page: Page) -> Result<()> {
     ///     let mut events = page.event_listener::<EventAnimationCanceled>().await?;
@@ -529,7 +529,7 @@ impl Page {
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
     /// # use chromiumoxide::layout::Point;
-    /// # use spider_chromiumoxide_cdp::cdp::browser_protocol::input::{DispatchMouseEventParams, MouseButton, DispatchMouseEventType};
+    /// # use chromiumoxide_cdp::cdp::browser_protocol::input::{DispatchMouseEventParams, MouseButton, DispatchMouseEventType};
     /// # async fn demo(page: Page, point: Point) -> Result<()> {
     ///      // double click
     ///      let cmd = DispatchMouseEventParams::builder()
@@ -581,7 +581,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::{Page, ScreenshotParams};
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::browser_protocol::page::CaptureScreenshotFormat;
+    /// # use chromiumoxide_cdp::cdp::browser_protocol::page::CaptureScreenshotFormat;
     /// # async fn demo(page: Page) -> Result<()> {
     ///         page.goto("http://example.com")
     ///             .await?
@@ -692,7 +692,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::browser_protocol::page::ReloadParams;
+    /// # use chromiumoxide_cdp::cdp::browser_protocol::page::ReloadParams;
     /// # async fn demo(page: Page) -> Result<()> {
     ///     page.execute(ReloadParams::builder().ignore_cache(true).build()).await?;
     ///     page.wait_for_navigation().await?;
@@ -807,7 +807,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::browser_protocol::network::CookieParam;
+    /// # use chromiumoxide_cdp::cdp::browser_protocol::network::CookieParam;
     /// # async fn demo(page: Page) -> Result<()> {
     ///     page.set_cookie(CookieParam::new("Cookie-name", "Cookie-value")).await?;
     ///     # Ok(())
@@ -1000,7 +1000,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{EvaluateParams, RemoteObjectType};
+    /// # use chromiumoxide_cdp::cdp::js_protocol::runtime::{EvaluateParams, RemoteObjectType};
     /// # async fn demo(page: Page) -> Result<()> {
     ///     let eval = EvaluateParams::builder().expression("() => {return 42;}");
     ///     // this will fail because the `EvaluationResult` returned by the browser will be
@@ -1087,7 +1087,7 @@ impl Page {
     /// ```no_run
     /// # use chromiumoxide::page::Page;
     /// # use chromiumoxide::error::Result;
-    /// # use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{CallFunctionOnParams, CallArgument};
+    /// # use chromiumoxide_cdp::cdp::js_protocol::runtime::{CallFunctionOnParams, CallArgument};
     /// # async fn demo(page: Page) -> Result<()> {
     ///     let call = CallFunctionOnParams::builder()
     ///            .function_declaration(

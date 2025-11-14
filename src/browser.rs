@@ -11,16 +11,16 @@ use futures::channel::oneshot::channel as oneshot_channel;
 use futures::select;
 use futures::SinkExt;
 
-use spider_chromiumoxide_cdp::cdp::browser_protocol::network::{Cookie, CookieParam};
-use spider_chromiumoxide_cdp::cdp::browser_protocol::storage::{
+use chromiumoxide_cdp::cdp::browser_protocol::network::{Cookie, CookieParam};
+use chromiumoxide_cdp::cdp::browser_protocol::storage::{
     ClearCookiesParams, GetCookiesParams, SetCookiesParams,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::target::{
+use chromiumoxide_cdp::cdp::browser_protocol::target::{
     CreateBrowserContextParams, CreateTargetParams, DisposeBrowserContextParams, TargetId,
     TargetInfo,
 };
-use spider_chromiumoxide_cdp::cdp::{CdpEventMessage, IntoEventKind};
-use spider_chromiumoxide_types::*;
+use chromiumoxide_cdp::cdp::{CdpEventMessage, IntoEventKind};
+use chromiumoxide_types::*;
 
 use crate::async_process::{self, Child, ExitStatus, Stdio};
 use crate::cmd::{to_command_response, CommandMessage};
@@ -33,7 +33,7 @@ use crate::handler::{Handler, HandlerConfig, HandlerMessage, REQUEST_TIMEOUT};
 use crate::listeners::{EventListenerRequest, EventStream};
 use crate::page::Page;
 use crate::utils;
-use spider_chromiumoxide_cdp::cdp::browser_protocol::browser::{
+use chromiumoxide_cdp::cdp::browser_protocol::browser::{
     BrowserContextId, CloseReturns, GetVersionParams, GetVersionReturns,
 };
 

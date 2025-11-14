@@ -8,8 +8,8 @@ use std::task::{Context, Poll};
 use futures::channel::mpsc::{SendError, UnboundedReceiver, UnboundedSender};
 use futures::{Sink, Stream};
 
-use spider_chromiumoxide_cdp::cdp::{Event, EventKind, IntoEventKind};
-use spider_chromiumoxide_types::MethodId;
+use chromiumoxide_cdp::cdp::{Event, EventKind, IntoEventKind};
+use chromiumoxide_types::MethodId;
 
 /// All the currently active listeners
 #[derive(Debug, Default)]
@@ -211,9 +211,9 @@ impl<T: IntoEventKind + Unpin> Stream for EventStream<T> {
 mod tests {
     use futures::{SinkExt, StreamExt};
 
-    use spider_chromiumoxide_cdp::cdp::browser_protocol::animation::EventAnimationCanceled;
-    use spider_chromiumoxide_cdp::cdp::CustomEvent;
-    use spider_chromiumoxide_types::MethodType;
+    use chromiumoxide_cdp::cdp::browser_protocol::animation::EventAnimationCanceled;
+    use chromiumoxide_cdp::cdp::CustomEvent;
+    use chromiumoxide_types::MethodType;
 
     use super::*;
 

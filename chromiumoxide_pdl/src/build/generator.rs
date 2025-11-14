@@ -240,11 +240,11 @@ impl Generator {
             /// chrome protocol definitions.
             ///
             /// Every `CustomEvent` also requires an implementation of
-            /// `spider_chromiumoxide_types::MethodType` and it must be `DeserializeOwned`
+            /// `chromiumoxide_types::MethodType` and it must be `DeserializeOwned`
             /// (`#[derive(serde::Deserialize)]`). This is necessary to identify match this
             /// type against the provided `method` identifier of a `CdpEventMessage`
             /// and to properly deserialize it from a `serde_json::Value`
-            pub trait CustomEvent: ::std::any::Any + serde::de::DeserializeOwned + spider_chromiumoxide_types::MethodType + Send + Sync {
+            pub trait CustomEvent: ::std::any::Any + serde::de::DeserializeOwned + chromiumoxide_types::MethodType + Send + Sync {
 
                 /// Used to convert the json event into in instance of this type
                 fn from_json(event: serde_json::Value) -> serde_json::Result<Self> where Self: Sized + 'static {
@@ -318,7 +318,7 @@ impl Generator {
                         }
                 }
 
-                pub trait SealedEvent: ArcAny + spider_chromiumoxide_types::MethodType {
+                pub trait SealedEvent: ArcAny + chromiumoxide_types::MethodType {
                     /// generate `&::std::any::Any`'s vtable from `&Trait`'s.
                     fn as_any(&self) -> &dyn ::std::any::Any;
                 }
@@ -467,16 +467,16 @@ impl Generator {
             });
             if !dt.is_type() {
                 stream.extend(quote! {
-                    impl spider_chromiumoxide_types::Method for #name {
+                    impl chromiumoxide_types::Method for #name {
 
-                        fn identifier(&self) -> spider_chromiumoxide_types::MethodId {
+                        fn identifier(&self) -> chromiumoxide_types::MethodId {
                             Self::IDENTIFIER.into()
                         }
                     }
 
-                    impl spider_chromiumoxide_types::MethodType for #name {
+                    impl chromiumoxide_types::MethodType for #name {
 
-                        fn method_id() -> spider_chromiumoxide_types::MethodId where Self: Sized {
+                        fn method_id() -> chromiumoxide_types::MethodId where Self: Sized {
                             Self::IDENTIFIER.into()
                         }
                     }
@@ -503,7 +503,7 @@ impl Generator {
                 // impl `Command` trait
                 let response = format_ident!("{}Returns", dt.name().to_upper_camel_case());
                 stream.extend(quote! {
-                    impl spider_chromiumoxide_types::Command for #name {
+                    impl chromiumoxide_types::Command for #name {
                         type Response = #response;
                     }
                 });
@@ -834,8 +834,8 @@ impl Generator {
                 Either::Left(size_of::<serde_json::Value>()),
             ),
             Type::Binary => (
-                FieldType::new(quote! {spider_chromiumoxide_types::Binary}),
-                Either::Left(size_of::<spider_chromiumoxide_types::Binary>()),
+                FieldType::new(quote! {chromiumoxide_types::Binary}),
+                Either::Left(size_of::<chromiumoxide_types::Binary>()),
             ),
             Type::Enum(_) => {
                 let ty = format_ident!("{}", subenum_name(parent, param_name));

@@ -5,27 +5,27 @@ use futures::channel::oneshot::channel as oneshot_channel;
 use futures::stream::Fuse;
 use futures::{SinkExt, StreamExt};
 
-use spider_chromiumoxide_cdp::cdp::browser_protocol::browser::{GetVersionParams, GetVersionReturns};
-use spider_chromiumoxide_cdp::cdp::browser_protocol::dom::{
+use chromiumoxide_cdp::cdp::browser_protocol::browser::{GetVersionParams, GetVersionReturns};
+use chromiumoxide_cdp::cdp::browser_protocol::dom::{
     DiscardSearchResultsParams, GetSearchResultsParams, NodeId, PerformSearchParams,
     QuerySelectorAllParams, QuerySelectorParams, Rgba,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::emulation::{
+use chromiumoxide_cdp::cdp::browser_protocol::emulation::{
     ClearDeviceMetricsOverrideParams, SetDefaultBackgroundColorOverrideParams,
     SetDeviceMetricsOverrideParams,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::input::{
+use chromiumoxide_cdp::cdp::browser_protocol::input::{
     DispatchKeyEventParams, DispatchKeyEventType, DispatchMouseEventParams, DispatchMouseEventType,
     MouseButton,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::page::{
+use chromiumoxide_cdp::cdp::browser_protocol::page::{
     FrameId, GetLayoutMetricsParams, GetLayoutMetricsReturns, Viewport,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::target::{ActivateTargetParams, SessionId, TargetId};
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{
+use chromiumoxide_cdp::cdp::browser_protocol::target::{ActivateTargetParams, SessionId, TargetId};
+use chromiumoxide_cdp::cdp::js_protocol::runtime::{
     CallFunctionOnParams, CallFunctionOnReturns, EvaluateParams, ExecutionContextId, RemoteObjectId,
 };
-use spider_chromiumoxide_types::{Command, CommandResponse};
+use chromiumoxide_types::{Command, CommandResponse};
 
 use crate::cmd::{to_command_response, CommandMessage};
 use crate::error::{CdpError, Result};

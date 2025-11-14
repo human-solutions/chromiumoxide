@@ -6,14 +6,14 @@ use std::task::{Context, Poll};
 
 use futures::{future, Future, FutureExt, Stream};
 
-use spider_chromiumoxide_cdp::cdp::browser_protocol::dom::{
+use chromiumoxide_cdp::cdp::browser_protocol::dom::{
     BackendNodeId, DescribeNodeParams, GetBoxModelParams, GetContentQuadsParams, Node, NodeId,
     ResolveNodeParams,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::page::{
+use chromiumoxide_cdp::cdp::browser_protocol::page::{
     CaptureScreenshotFormat, CaptureScreenshotParams, Viewport,
 };
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{
+use chromiumoxide_cdp::cdp::js_protocol::runtime::{
     CallFunctionOnReturns, GetPropertiesParams, PropertyDescriptor, RemoteObjectId,
     RemoteObjectType,
 };

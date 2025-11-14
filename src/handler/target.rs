@@ -16,7 +16,7 @@ use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::{
 };
 use spider_spider_chromiumoxide_cdp::cdp::events::CdpEvent;
 use spider_spider_chromiumoxide_cdp::cdp::CdpEventMessage;
-use spider_chromiumoxide_types::{Command, Method, Request, Response};
+use chromiumoxide_types::{Command, Method, Request, Response};
 
 use crate::auth::Credentials;
 use crate::cdp::browser_protocol::target::CloseTargetParams;

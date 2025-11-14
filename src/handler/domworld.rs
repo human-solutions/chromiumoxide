@@ -1,4 +1,4 @@
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::ExecutionContextId;
+use chromiumoxide_cdp::cdp::js_protocol::runtime::ExecutionContextId;
 
 #[derive(Debug, Clone, Default)]
 pub struct DOMWorld {

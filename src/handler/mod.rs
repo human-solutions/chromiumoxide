@@ -13,8 +13,8 @@ use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::browser::*;
 use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::target::*;
 use spider_spider_chromiumoxide_cdp::cdp::events::CdpEvent;
 use spider_spider_chromiumoxide_cdp::cdp::events::CdpEventMessage;
-use spider_chromiumoxide_types::{CallId, Message, Method, Response};
-use spider_chromiumoxide_types::{MethodId, Request as CdpRequest};
+use chromiumoxide_types::{CallId, Message, Method, Response};
+use chromiumoxide_types::{MethodId, Request as CdpRequest};
 pub(crate) use page::PageInner;
 
 use crate::cmd::{to_command_response, CommandMessage};

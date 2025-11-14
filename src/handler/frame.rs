@@ -5,19 +5,19 @@ use std::time::{Duration, Instant};
 
 use serde_json::map::Entry;
 
-use spider_chromiumoxide_cdp::cdp::browser_protocol::network::LoaderId;
-use spider_chromiumoxide_cdp::cdp::browser_protocol::page::{
+use chromiumoxide_cdp::cdp::browser_protocol::network::LoaderId;
+use chromiumoxide_cdp::cdp::browser_protocol::page::{
     AddScriptToEvaluateOnNewDocumentParams, CreateIsolatedWorldParams, EventFrameDetached,
     EventFrameStartedLoading, EventFrameStoppedLoading, EventLifecycleEvent,
     EventNavigatedWithinDocument, Frame as CdpFrame, FrameTree,
 };
-use spider_chromiumoxide_cdp::cdp::browser_protocol::target::EventAttachedToTarget;
-use spider_chromiumoxide_cdp::cdp::js_protocol::runtime::*;
-use spider_chromiumoxide_cdp::cdp::{
+use chromiumoxide_cdp::cdp::browser_protocol::target::EventAttachedToTarget;
+use chromiumoxide_cdp::cdp::js_protocol::runtime::*;
+use chromiumoxide_cdp::cdp::{
     browser_protocol::page::{self, FrameId},
     js_protocol::runtime,
 };
-use spider_chromiumoxide_types::{Method, MethodId, Request};
+use chromiumoxide_types::{Method, MethodId, Request};
 
 use crate::error::DeadlineExceeded;
 use crate::handler::domworld::DOMWorld;

@@ -316,7 +316,7 @@ impl<'a> EventBuilder<'a> {
                 type Error = serde_json::Error;
 
                 fn try_into(self) -> Result<spider_chromiumoxide_types::CdpJsonEventMessage, Self::Error> {
-                    use spider_chromiumoxide_types::Method;
+                    use chromiumoxide_types::Method;
                     Ok(spider_chromiumoxide_types::CdpJsonEventMessage {
                         method: self.identifier(),
                         session_id: self.session_id,
