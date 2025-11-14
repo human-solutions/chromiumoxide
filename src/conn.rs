@@ -9,8 +9,8 @@ use futures::stream::Stream;
 use futures::task::{Context, Poll};
 use futures::{SinkExt, StreamExt};
 
-use chromiumoxide_cdp::cdp::browser_protocol::target::SessionId;
-use chromiumoxide_types::{CallId, EventMessage, Message, MethodCall, MethodId};
+use spider_chromiumoxide_cdp::cdp::browser_protocol::target::SessionId;
+use spider_chromiumoxide_types::{CallId, EventMessage, Message, MethodCall, MethodId};
 
 use crate::error::CdpError;
 use crate::error::Result;

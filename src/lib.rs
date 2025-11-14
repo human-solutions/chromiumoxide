@@ -65,8 +65,8 @@ use crate::handler::http::HttpRequest;
 use std::sync::Arc;
 
 /// reexport the generated cdp types
-pub use chromiumoxide_cdp::cdp;
-pub use chromiumoxide_types::{self as types, Binary, Command, Method, MethodType};
+pub use spider_chromiumoxide_cdp::cdp;
+pub use spider_chromiumoxide_types::{self as types, Binary, Command, Method, MethodType};
 
 pub use crate::browser::{Browser, BrowserConfig};
 pub use crate::conn::Connection;

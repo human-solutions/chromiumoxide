@@ -159,21 +159,21 @@ impl<'a> EventBuilder<'a> {
             #[derive(Debug, PartialEq, Clone)]
             pub struct CdpEventMessage {
                 /// Name of the method
-                pub method: chromiumoxide_types::MethodId,
+                pub method: spider_chromiumoxide_types::MethodId,
                 /// The chromium session Id
                 pub session_id: Option<String>,
                 /// Json params
                 pub params: CdpEvent,
             }
-            impl chromiumoxide_types::Method for CdpEventMessage {
-                fn identifier(&self) -> chromiumoxide_types::MethodId {
+            impl spider_chromiumoxide_types::Method for CdpEventMessage {
+                fn identifier(&self) -> spider_chromiumoxide_types::MethodId {
                    match &self.params {
                         #(CdpEvent::#var_idents(inner) => inner.identifier(),)*
                         _=> self.method.clone()
                     }
                 }
             }
-            impl chromiumoxide_types::EventMessage for CdpEventMessage {
+            impl spider_chromiumoxide_types::EventMessage for CdpEventMessage {
                 fn session_id(&self) -> Option<&str> {
                     self.session_id.as_deref()
                 }
@@ -312,12 +312,12 @@ impl<'a> EventBuilder<'a> {
                 }
             }
 
-            impl std::convert::TryInto<chromiumoxide_types::CdpJsonEventMessage> for CdpEventMessage {
+            impl std::convert::TryInto<spider_chromiumoxide_types::CdpJsonEventMessage> for CdpEventMessage {
                 type Error = serde_json::Error;
 
-                fn try_into(self) -> Result<chromiumoxide_types::CdpJsonEventMessage, Self::Error> {
-                    use chromiumoxide_types::Method;
-                    Ok(chromiumoxide_types::CdpJsonEventMessage {
+                fn try_into(self) -> Result<spider_chromiumoxide_types::CdpJsonEventMessage, Self::Error> {
+                    use spider_chromiumoxide_types::Method;
+                    Ok(spider_chromiumoxide_types::CdpJsonEventMessage {
                         method: self.identifier(),
                         session_id: self.session_id,
                         params: self.params.into_json()?

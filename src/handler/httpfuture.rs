@@ -10,7 +10,7 @@ use crate::handler::commandfuture::CommandFuture;
 use crate::handler::target::TargetMessage;
 use crate::handler::target_message_future::TargetMessageFuture;
 use crate::{ArcHttpRequest, Result};
-use chromiumoxide_types::Command;
+use spider_chromiumoxide_types::Command;
 
 type ArcRequest = ArcHttpRequest;
 

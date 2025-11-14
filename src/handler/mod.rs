@@ -9,12 +9,12 @@ use futures::stream::{Fuse, Stream, StreamExt};
 use futures::task::{Context, Poll};
 
 use crate::listeners::{EventListenerRequest, EventListeners};
-use chromiumoxide_cdp::cdp::browser_protocol::browser::*;
-use chromiumoxide_cdp::cdp::browser_protocol::target::*;
-use chromiumoxide_cdp::cdp::events::CdpEvent;
-use chromiumoxide_cdp::cdp::events::CdpEventMessage;
-use chromiumoxide_types::{CallId, Message, Method, Response};
-use chromiumoxide_types::{MethodId, Request as CdpRequest};
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::browser::*;
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::target::*;
+use spider_spider_chromiumoxide_cdp::cdp::events::CdpEvent;
+use spider_spider_chromiumoxide_cdp::cdp::events::CdpEventMessage;
+use spider_chromiumoxide_types::{CallId, Message, Method, Response};
+use spider_chromiumoxide_types::{MethodId, Request as CdpRequest};
 pub(crate) use page::PageInner;
 
 use crate::cmd::{to_command_response, CommandMessage};
@@ -412,7 +412,7 @@ impl Handler {
             CdpEvent::TargetDetachedFromTarget(ev) => self.on_detached_from_target(ev),
             _ => {}
         }
-        chromiumoxide_cdp::consume_event!(match params {
+        spider_chromiumoxide_cdp::consume_event!(match params {
             |ev| self.event_listeners.start_send(ev),
             |json| { let _ = self.event_listeners.try_send_custom(&method, json);}
         });

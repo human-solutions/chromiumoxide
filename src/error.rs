@@ -10,10 +10,10 @@ use futures::channel::mpsc::SendError;
 use futures::channel::oneshot::Canceled;
 use thiserror::Error;
 
-use chromiumoxide_cdp::cdp::browser_protocol::page::FrameId;
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::page::FrameId;
 
 use crate::handler::frame::NavigationError;
-use chromiumoxide_cdp::cdp::js_protocol::runtime::ExceptionDetails;
+use spider_spider_chromiumoxide_cdp::cdp::js_protocol::runtime::ExceptionDetails;
 
 pub type Result<T, E = CdpError> = std::result::Result<T, E>;
 
@@ -26,7 +26,7 @@ pub enum CdpError {
     #[error("{0}")]
     Serde(#[from] serde_json::Error),
     #[error("{0}")]
-    Chrome(#[from] chromiumoxide_types::Error),
+    Chrome(#[from] spider_chromiumoxide_types::Error),
     #[error("Received no response from the chromium instance.")]
     NoResponse,
     #[error("Received unexpected ws message: {0:?}")]
@@ -46,7 +46,7 @@ pub enum CdpError {
     #[error("FrameId {0:?} not found.")]
     FrameNotFound(FrameId),
     /// Error message related to a cdp response that is not a
-    /// `chromiumoxide_types::Error`
+    /// `spider_chromiumoxide_types::Error`
     #[error("{0}")]
     ChromeMessage(String),
     #[error("{0}")]

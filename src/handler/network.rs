@@ -1,16 +1,16 @@
-use chromiumoxide_cdp::cdp::browser_protocol::fetch::{
+use spider_chromiumoxide_cdp::cdp::browser_protocol::fetch::{
     self, AuthChallengeResponse, AuthChallengeResponseResponse, ContinueRequestParams,
     ContinueWithAuthParams, DisableParams, EventAuthRequired, EventRequestPaused, RequestPattern,
 };
-use chromiumoxide_cdp::cdp::browser_protocol::network::{
+use spider_chromiumoxide_cdp::cdp::browser_protocol::network::{
     EmulateNetworkConditionsParams, EventLoadingFailed, EventLoadingFinished,
     EventRequestServedFromCache, EventRequestWillBeSent, EventResponseReceived, Headers,
     InterceptionId, RequestId, Response, SetCacheDisabledParams, SetExtraHttpHeadersParams,
 };
-use chromiumoxide_cdp::cdp::browser_protocol::{
+use spider_chromiumoxide_cdp::cdp::browser_protocol::{
     network::EnableParams, security::SetIgnoreCertificateErrorsParams,
 };
-use chromiumoxide_types::{Command, Method, MethodId};
+use spider_chromiumoxide_types::{Command, Method, MethodId};
 
 use crate::auth::Credentials;
 use crate::cmd::CommandChain;

@@ -6,9 +6,9 @@ use futures::channel::oneshot::Sender as OneshotSender;
 use futures::task::Poll;
 use serde::Serialize;
 
-use chromiumoxide_cdp::cdp::browser_protocol::page::NavigateParams;
-use chromiumoxide_cdp::cdp::browser_protocol::target::SessionId;
-use chromiumoxide_types::{Command, CommandResponse, Method, MethodId, Request, Response};
+use spider_chromiumoxide_cdp::cdp::browser_protocol::page::NavigateParams;
+use spider_chromiumoxide_cdp::cdp::browser_protocol::target::SessionId;
+use spider_chromiumoxide_types::{Command, CommandResponse, Method, MethodId, Request, Response};
 
 use crate::error::{CdpError, DeadlineExceeded, Result};
 use crate::handler::REQUEST_TIMEOUT;

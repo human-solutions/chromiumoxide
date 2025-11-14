@@ -1,5 +1,5 @@
 [package]
-name = "chromiumoxide_types"
+name = "spider_chromiumoxide_types"
 version = "0.7.4"
 authors = ["Matthias Seitz <matthias.seitz@outlook.de>"]
 edition = "2021"

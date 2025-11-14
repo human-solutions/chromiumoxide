@@ -3,20 +3,20 @@ use std::pin::Pin;
 use std::sync::Arc;
 use std::time::Instant;
 
-use chromiumoxide_cdp::cdp::browser_protocol::target::DetachFromTargetParams;
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::target::DetachFromTargetParams;
 use futures::channel::oneshot::Sender;
 use futures::stream::Stream;
 use futures::task::{Context, Poll};
 
-use chromiumoxide_cdp::cdp::browser_protocol::page::{FrameId, GetFrameTreeParams};
-use chromiumoxide_cdp::cdp::browser_protocol::{
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::page::{FrameId, GetFrameTreeParams};
+use spider_spider_chromiumoxide_cdp::cdp::browser_protocol::{
     browser::BrowserContextId,
     log as cdplog, performance,
     target::{AttachToTargetParams, SessionId, SetAutoAttachParams, TargetId, TargetInfo},
 };
-use chromiumoxide_cdp::cdp::events::CdpEvent;
-use chromiumoxide_cdp::cdp::CdpEventMessage;
-use chromiumoxide_types::{Command, Method, Request, Response};
+use spider_spider_chromiumoxide_cdp::cdp::events::CdpEvent;
+use spider_spider_chromiumoxide_cdp::cdp::CdpEventMessage;
+use spider_chromiumoxide_types::{Command, Method, Request, Response};
 
 use crate::auth::Credentials;
 use crate::cdp::browser_protocol::target::CloseTargetParams;
@@ -36,7 +36,7 @@ use crate::handler::viewport::Viewport;
 use crate::handler::{PageInner, REQUEST_TIMEOUT};
 use crate::listeners::{EventListenerRequest, EventListeners};
 use crate::{page::Page, ArcHttpRequest};
-use chromiumoxide_cdp::cdp::js_protocol::runtime::{
+use spider_spider_chromiumoxide_cdp::cdp::js_protocol::runtime::{
     ExecutionContextId, RunIfWaitingForDebuggerParams,
 };
 use std::time::Duration;
@@ -298,7 +298,7 @@ impl Target {
             }
             _ => {}
         }
-        chromiumoxide_cdp::consume_event!(match params {
+        spider_chromiumoxide_cdp::consume_event!(match params {
            |ev| self.event_listeners.start_send(ev),
            |json| { let _ = self.event_listeners.try_send_custom(&method, json);}
         });
