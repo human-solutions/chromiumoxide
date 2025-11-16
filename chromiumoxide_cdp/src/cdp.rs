@@ -32911,6 +32911,7 @@ pub mod browser_protocol {
         pub struct InheritedPseudoElementMatches {
             #[doc = "Matches of pseudo styles from the pseudos of an ancestor node."]
             #[serde(rename = "pseudoElements")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Vec::is_empty")]
             pub pseudo_elements: Vec<PseudoElementMatches>,
         }
@@ -34068,10 +34069,12 @@ pub mod browser_protocol {
             pub style_sheet_id: Option<StyleSheetId>,
             #[doc = "CSS properties in the style."]
             #[serde(rename = "cssProperties")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Vec::is_empty")]
             pub css_properties: Vec<CssProperty>,
             #[doc = "Computed values for all shorthands found in the style."]
             #[serde(rename = "shorthandEntries")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Vec::is_empty")]
             pub shorthand_entries: Vec<ShorthandEntry>,
             #[doc = "Style declaration text (if available)."]
@@ -37620,58 +37623,72 @@ pub mod browser_protocol {
         pub struct GetMatchedStylesForNodeReturns {
             #[doc = "Inline style for the specified DOM node."]
             #[serde(rename = "inlineStyle")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub inline_style: Option<CssStyle>,
             #[doc = "Attribute-defined element style (e.g. resulting from \"width=20 height=100%\")."]
             #[serde(rename = "attributesStyle")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub attributes_style: Option<CssStyle>,
             #[doc = "CSS rules matching this node, from all applicable stylesheets."]
             #[serde(rename = "matchedCSSRules")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub matched_css_rules: Option<Vec<RuleMatch>>,
             #[doc = "Pseudo style matches for this node."]
             #[serde(rename = "pseudoElements")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub pseudo_elements: Option<Vec<PseudoElementMatches>>,
             #[doc = "A chain of inherited styles (from the immediate node parent up to the DOM tree root)."]
             #[serde(rename = "inherited")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub inherited: Option<Vec<InheritedStyleEntry>>,
             #[doc = "A chain of inherited pseudo element styles (from the immediate node parent up to the DOM tree root)."]
             #[serde(rename = "inheritedPseudoElements")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub inherited_pseudo_elements: Option<Vec<InheritedPseudoElementMatches>>,
             #[doc = "A list of CSS keyframed animations matching this node."]
             #[serde(rename = "cssKeyframesRules")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_keyframes_rules: Option<Vec<CssKeyframesRule>>,
             #[doc = "A list of CSS @position-try rules matching this node, based on the position-try-fallbacks property."]
             #[serde(rename = "cssPositionTryRules")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_position_try_rules: Option<Vec<CssPositionTryRule>>,
             #[doc = "Index of the active fallback in the applied position-try-fallback property,\nwill not be set if there is no active position-try fallback."]
             #[serde(rename = "activePositionFallbackIndex")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub active_position_fallback_index: Option<i64>,
             #[doc = "A list of CSS at-property rules matching this node."]
             #[serde(rename = "cssPropertyRules")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_property_rules: Option<Vec<CssPropertyRule>>,
             #[doc = "A list of CSS property registrations matching this node."]
             #[serde(rename = "cssPropertyRegistrations")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_property_registrations: Option<Vec<CssPropertyRegistration>>,
             #[doc = "A font-palette-values rule matching this node."]
             #[serde(rename = "cssFontPaletteValuesRule")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_font_palette_values_rule: Option<CssFontPaletteValuesRule>,
             #[doc = "Id of the first parent element that does not have display: contents."]
             #[serde(rename = "parentLayoutNodeId")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub parent_layout_node_id: Option<super::dom::NodeId>,
             #[doc = "A list of CSS at-function rules referenced by styles of this node."]
             #[serde(rename = "cssFunctionRules")]
+            #[serde(default)]
             #[serde(skip_serializing_if = "Option::is_none")]
             pub css_function_rules: Option<Vec<CssFunctionRule>>,
         }
