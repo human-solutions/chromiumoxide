@@ -258,7 +258,7 @@ impl Browser {
     /// spawned instance exit, to avoid "zombie" processes ([`Browser::wait`],
     /// [`Browser::wait_sync`], [`Browser::try_wait`]).
     /// [`Browser::drop`] waits automatically if needed.
-    pub async fn close(&mut self) -> Result<CloseReturns> {
+    pub async fn close(&self) -> Result<CloseReturns> {
         let (tx, rx) = oneshot_channel();
 
         self.sender
