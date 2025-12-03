@@ -2,6 +2,7 @@ use std::collections::VecDeque;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+use tracing;
 
 use serde_json::map::Entry;
 
@@ -276,6 +277,16 @@ impl FrameManager {
         if !self.check_lifecycle(watcher, frame) {
             return None;
         }
+        // If both loader_ids are None, this is the first navigation on an attached page
+        // that wasn't properly initialized. Allow it to complete as a new document navigation.
+        if frame.loader_id.is_none() && watcher.loader_id.is_none() {
+            tracing::debug!(
+                "Navigation complete (both loader_ids None): frame={:?} events={:?}",
+                watcher.frame_id,
+                frame.lifecycle_events
+            );
+            return Some(NavigationOk::NewDocumentNavigation(watcher.id));
+        }
         if frame.loader_id == watcher.loader_id && !watcher.same_document_navigation {
             return None;
         }
@@ -302,6 +313,17 @@ impl FrameManager {
         if let Some((watcher, deadline)) = self.navigation.take() {
             if now > deadline {
                 // navigation request timed out
+                let frame_events = self
+                    .frames
+                    .get(&watcher.frame_id)
+                    .map(|f| &f.lifecycle_events);
+                tracing::warn!(
+                    "Navigation timeout: frame={:?} expected={:?} received={:?} loader_id={:?}",
+                    watcher.frame_id,
+                    watcher.expected_lifecycle,
+                    frame_events,
+                    watcher.loader_id
+                );
                 return Some(FrameEvent::NavigationResult(Err(
                     NavigationError::Timeout {
                         err: DeadlineExceeded::new(now, deadline),
@@ -313,12 +335,18 @@ impl FrameManager {
                 if let Some(nav) = self.check_lifecycle_complete(&watcher, frame) {
                     // request is complete if the frame's lifecycle is complete = frame received all
                     // required events
+                    tracing::debug!(
+                        "Navigation complete: frame={:?} received={:?}",
+                        watcher.frame_id,
+                        frame.lifecycle_events
+                    );
                     return Some(FrameEvent::NavigationResult(Ok(nav)));
                 } else {
                     // not finished yet
                     self.navigation = Some((watcher, deadline));
                 }
             } else {
+                tracing::warn!("Navigation failed: frame not found: {:?}", watcher.frame_id);
                 return Some(FrameEvent::NavigationResult(Err(
                     NavigationError::FrameNotFound {
                         frame: watcher.frame_id,
@@ -329,6 +357,12 @@ impl FrameManager {
         } else if let Some((req, watcher)) = self.pending_navigations.pop_front() {
             // queue in the next navigation that is must be fulfilled until `deadline`
             let deadline = Instant::now() + req.timeout;
+            tracing::debug!(
+                "Navigation started: frame={:?} expected={:?} timeout={:?}",
+                watcher.frame_id,
+                watcher.expected_lifecycle,
+                req.timeout
+            );
             self.navigation = Some((watcher, deadline));
             return Some(FrameEvent::NavigationRequest(req.id, req.req));
         }
@@ -504,12 +538,21 @@ impl FrameManager {
 
     /// Fired for top level page lifecycle events (nav, load, paint, etc.)
     pub fn on_page_lifecycle_event(&mut self, event: &EventLifecycleEvent) {
+        tracing::debug!(
+            "Lifecycle event: frame={:?} name={} loader={:?}",
+            event.frame_id,
+            event.name,
+            event.loader_id
+        );
         if let Some(frame) = self.frames.get_mut(&event.frame_id) {
             if event.name == "init" {
                 frame.loader_id = Some(event.loader_id.clone());
                 frame.lifecycle_events.clear();
             }
             frame.lifecycle_events.insert(event.name.clone().into());
+            tracing::trace!("Frame lifecycle events now: {:?}", frame.lifecycle_events);
+        } else {
+            tracing::debug!("Lifecycle event for unknown frame: {:?}", event.frame_id);
         }
     }
 
