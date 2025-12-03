@@ -68,6 +68,34 @@ impl CdpError {
     pub fn msg(msg: impl Into<String>) -> Self {
         CdpError::ChromeMessage(msg.into())
     }
+
+    /// Returns true if this error indicates the WebSocket connection was closed
+    /// (e.g., browser killed/crashed without proper close handshake)
+    pub fn is_connection_closed(&self) -> bool {
+        match self {
+            CdpError::Ws(ws_err) => {
+                use tungstenite::error::Error as WsError;
+                use tungstenite::error::ProtocolError;
+                matches!(
+                    ws_err,
+                    WsError::Protocol(ProtocolError::ResetWithoutClosingHandshake)
+                        | WsError::ConnectionClosed
+                        | WsError::AlreadyClosed
+                )
+            }
+            CdpError::Io(io_err) => {
+                // Connection reset, broken pipe, etc.
+                matches!(
+                    io_err.kind(),
+                    io::ErrorKind::ConnectionReset
+                        | io::ErrorKind::ConnectionAborted
+                        | io::ErrorKind::BrokenPipe
+                        | io::ErrorKind::UnexpectedEof
+                )
+            }
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug, Error)]

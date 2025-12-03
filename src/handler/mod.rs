@@ -612,28 +612,41 @@ impl Stream for Handler {
 
             let mut done = true;
 
-            while let Poll::Ready(Some(ev)) = Pin::new(&mut pin.conn).poll_next(cx) {
+            while let Poll::Ready(ev) = Pin::new(&mut pin.conn).poll_next(cx) {
                 match ev {
-                    Ok(Message::Response(resp)) => {
+                    Some(Ok(Message::Response(resp))) => {
                         pin.on_response(resp);
                         if pin.closing {
                             // handler should stop processing
                             return Poll::Ready(None);
                         }
                     }
-                    Ok(Message::Event(ev)) => {
+                    Some(Ok(Message::Event(ev))) => {
                         pin.on_event(ev);
                     }
-                    Err(err @ CdpError::InvalidMessage(_, _)) => {
+                    Some(Err(err @ CdpError::InvalidMessage(_, _))) => {
                         if pin.config.ignore_invalid_messages {
                             tracing::warn!("WS Invalid message: {}", err);
                         } else {
                             return Poll::Ready(Some(Err(err)));
                         }
                     }
-                    Err(err) => {
+                    Some(Err(err)) => {
+                        // Check if this is a connection-closed error (browser killed/crashed)
+                        if err.is_connection_closed() {
+                            tracing::debug!(
+                                "WebSocket connection lost (browser killed/closed): {:?}",
+                                err
+                            );
+                            return Poll::Ready(None);
+                        }
                         tracing::error!("WS Connection error: {:?}", err);
                         return Poll::Ready(Some(Err(err)));
+                    }
+                    None => {
+                        // WebSocket connection closed (browser killed/closed)
+                        tracing::debug!("WebSocket connection closed, Handler stream ending");
+                        return Poll::Ready(None);
                     }
                 }
                 done = false;
