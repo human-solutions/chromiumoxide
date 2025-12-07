@@ -263,13 +263,17 @@ impl Page {
     /// ```
     pub async fn event_listener<T: IntoEventKind>(&self) -> Result<EventStream<T>> {
         let (tx, rx) = unbounded();
+        let (ack_tx, ack_rx) = oneshot_channel();
         self.inner
             .sender()
             .clone()
             .send(TargetMessage::AddEventListener(
-                EventListenerRequest::new::<T>(tx),
+                EventListenerRequest::with_ack::<T>(tx, ack_tx),
             ))
             .await?;
+
+        // Wait for handler to actually register the listener
+        ack_rx.await?;
 
         Ok(EventStream::new(rx))
     }

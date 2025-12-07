@@ -456,12 +456,16 @@ impl Browser {
     /// Set listener for browser event
     pub async fn event_listener<T: IntoEventKind>(&self) -> Result<EventStream<T>> {
         let (tx, rx) = unbounded();
+        let (ack_tx, ack_rx) = oneshot_channel();
         self.sender
             .clone()
             .send(HandlerMessage::AddEventListener(
-                EventListenerRequest::new::<T>(tx),
+                EventListenerRequest::with_ack::<T>(tx, ack_tx),
             ))
             .await?;
+
+        // Wait for handler to actually register the listener
+        ack_rx.await?;
 
         Ok(EventStream::new(rx))
     }

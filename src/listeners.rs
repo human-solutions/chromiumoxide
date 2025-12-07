@@ -6,6 +6,7 @@ use std::sync::Arc;
 use std::task::{Context, Poll};
 
 use futures::channel::mpsc::{SendError, UnboundedReceiver, UnboundedSender};
+use futures::channel::oneshot;
 use futures::{Sink, Stream};
 
 use chromiumoxide_cdp::cdp::{Event, EventKind, IntoEventKind};
@@ -25,6 +26,7 @@ impl EventListeners {
             listener,
             method,
             kind,
+            ack,
         } = req;
         let subs = self.listeners.entry(method).or_default();
         subs.push(EventListener {
@@ -32,6 +34,10 @@ impl EventListeners {
             kind,
             queued_events: Default::default(),
         });
+        // Send acknowledgment that listener was registered
+        if let Some(tx) = ack {
+            let _ = tx.send(());
+        }
     }
 
     /// Queue in a event that should be send to all listeners
@@ -99,6 +105,8 @@ pub struct EventListenerRequest {
     listener: UnboundedSender<Arc<dyn Event>>,
     method: MethodId,
     kind: EventKind,
+    /// Optional channel to acknowledge that the listener was registered
+    ack: Option<oneshot::Sender<()>>,
 }
 
 impl EventListenerRequest {
@@ -107,6 +115,20 @@ impl EventListenerRequest {
             listener,
             method: T::method_id(),
             kind: T::event_kind(),
+            ack: None,
+        }
+    }
+
+    /// Create a new request with an acknowledgment channel
+    pub fn with_ack<T: IntoEventKind>(
+        listener: UnboundedSender<Arc<dyn Event>>,
+        ack: oneshot::Sender<()>,
+    ) -> Self {
+        Self {
+            listener,
+            method: T::method_id(),
+            kind: T::event_kind(),
+            ack: Some(ack),
         }
     }
 }
@@ -272,6 +294,7 @@ mod tests {
             method: EventAnimationCanceled::method_id(),
             kind: EventAnimationCanceled::event_kind(),
             listener: tx,
+            ack: None,
         });
 
         listeners.start_send(event.clone());
