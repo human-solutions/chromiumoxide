@@ -315,6 +315,15 @@ impl Browser {
         self.child.as_mut()
     }
 
+    /// Returns the process ID of the spawned browser instance.
+    ///
+    /// Returns `None` if:
+    /// - The browser was connected to (not launched)
+    /// - The process has already exited
+    pub fn process_id(&self) -> Option<u32> {
+        self.child.as_ref().and_then(|c| c.id())
+    }
+
     /// Forcibly kill the spawned chromium instance
     ///
     /// The instance is spawned by [`Browser::launch`]. `kill` will automatically wait for the child

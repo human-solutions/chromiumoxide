@@ -121,6 +121,19 @@ impl Child {
         }
     }
 
+    /// Returns the OS-assigned process identifier of the child process.
+    ///
+    /// Returns `None` if the process has already exited or the ID is unavailable.
+    pub fn id(&self) -> Option<u32> {
+        cfg_if::cfg_if! {
+            if #[cfg(feature = "async-std-runtime")] {
+                Some(self.inner.id())
+            } else if #[cfg(feature = "tokio-runtime")] {
+                self.inner.id()
+            }
+        }
+    }
+
     /// Return a mutable reference to the inner process
     ///
     /// `stderr` may not be available.
