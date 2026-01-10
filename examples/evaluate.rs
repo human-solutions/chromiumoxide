@@ -6,7 +6,7 @@ use futures::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let (mut browser, mut handler) = Browser::launch(BrowserConfig::builder().build()?).await?;
+    let (browser, mut handler) = Browser::launch(BrowserConfig::builder().build()?).await?;
 
     let handle = tokio::spawn(async move {
         while let Some(h) = handler.next().await {
