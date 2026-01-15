@@ -458,7 +458,8 @@ mod tests {
 
         // Second event: FrameStartedLoading
         let wild_event2 = wildcard_stream.next().await.unwrap();
-        let downcast2: Arc<EventFrameStartedLoading> = wild_event2.into_any_arc().downcast().unwrap();
+        let downcast2: Arc<EventFrameStartedLoading> =
+            wild_event2.into_any_arc().downcast().unwrap();
         assert_eq!(&*downcast2, &frame_event);
     }
 }
