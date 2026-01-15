@@ -36,7 +36,7 @@ use crate::handler::target::{GetName, GetParent, GetUrl, TargetMessage};
 use crate::handler::PageInner;
 use crate::js::{Evaluation, EvaluationResult};
 use crate::layout::Point;
-use crate::listeners::{EventListenerRequest, EventStream};
+use crate::listeners::{AnyEventStream, EventListenerRequest, EventStream};
 use crate::{utils, ArcHttpRequest};
 
 #[derive(Debug, Clone)]
@@ -276,6 +276,48 @@ impl Page {
         ack_rx.await?;
 
         Ok(EventStream::new(rx))
+    }
+
+    /// Returns a stream of ALL CDP events for this page, regardless of type.
+    ///
+    /// This is useful for debugging, logging, or building event-based wrappers
+    /// that need to observe all protocol activity. Event ordering is preserved.
+    ///
+    /// # Note
+    ///
+    /// Custom events (user-defined event types) are NOT included in this stream.
+    /// Use [`event_listener`](Self::event_listener) for custom events.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use chromiumoxide::page::Page;
+    /// # use chromiumoxide::error::Result;
+    /// # use futures::StreamExt;
+    /// # async fn demo(page: Page) -> Result<()> {
+    /// let mut events = page.all_events().await?;
+    /// while let Some(event) = events.next().await {
+    ///     // Downcast to specific types as needed
+    ///     // event.into_any_arc().downcast::<SomeEventType>()
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub async fn all_events(&self) -> Result<AnyEventStream> {
+        let (tx, rx) = unbounded();
+        let (ack_tx, ack_rx) = oneshot_channel();
+        self.inner
+            .sender()
+            .clone()
+            .send(TargetMessage::AddEventListener(
+                EventListenerRequest::wildcard(tx, ack_tx),
+            ))
+            .await?;
+
+        // Wait for handler to actually register the listener
+        ack_rx.await?;
+
+        Ok(AnyEventStream::new(rx))
     }
 
     pub async fn expose_function(

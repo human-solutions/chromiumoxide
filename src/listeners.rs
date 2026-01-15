@@ -17,6 +17,8 @@ use chromiumoxide_types::MethodId;
 pub struct EventListeners {
     /// Tracks the listeners for each event identified by the key
     listeners: HashMap<MethodId, Vec<EventListener>>,
+    /// Wildcard listeners that receive all events regardless of type
+    wildcard_listeners: Vec<EventListener>,
 }
 
 impl EventListeners {
@@ -27,13 +29,22 @@ impl EventListeners {
             method,
             kind,
             ack,
+            wildcard,
         } = req;
-        let subs = self.listeners.entry(method).or_default();
-        subs.push(EventListener {
+
+        let event_listener = EventListener {
             listener,
             kind,
             queued_events: Default::default(),
-        });
+        };
+
+        if wildcard {
+            self.wildcard_listeners.push(event_listener);
+        } else {
+            let subs = self.listeners.entry(method).or_default();
+            subs.push(event_listener);
+        }
+
         // Send acknowledgment that listener was registered
         if let Some(tx) = ack {
             let _ = tx.send(());
@@ -42,12 +53,26 @@ impl EventListeners {
 
     /// Queue in a event that should be send to all listeners
     pub fn start_send<T: Event>(&mut self, event: T) {
+        let has_typed = self.listeners.contains_key(&T::method_id());
+        let has_wildcard = !self.wildcard_listeners.is_empty();
+
+        if !has_typed && !has_wildcard {
+            return;
+        }
+
+        let event: Arc<dyn Event> = Arc::new(event);
+
+        // Send to typed listeners
         if let Some(subscriptions) = self.listeners.get_mut(&T::method_id()) {
-            let event: Arc<dyn Event> = Arc::new(event);
             subscriptions
                 .iter_mut()
                 .for_each(|sub| sub.start_send(Arc::clone(&event)));
         }
+
+        // Send to wildcard listeners
+        self.wildcard_listeners
+            .iter_mut()
+            .for_each(|sub| sub.start_send(Arc::clone(&event)));
     }
 
     /// Try to queue in a new custom event if a listener is registered and the
@@ -85,6 +110,7 @@ impl EventListeners {
     /// Drains all queued events and does the housekeeping when the receiver
     /// part of a subscription is dropped
     pub fn poll(&mut self, cx: &mut Context<'_>) {
+        // Poll typed listeners
         for subscriptions in self.listeners.values_mut() {
             for n in (0..subscriptions.len()).rev() {
                 let mut sub = subscriptions.swap_remove(n);
@@ -98,6 +124,19 @@ impl EventListeners {
                 }
             }
         }
+
+        // Poll wildcard listeners
+        for n in (0..self.wildcard_listeners.len()).rev() {
+            let mut sub = self.wildcard_listeners.swap_remove(n);
+            match sub.poll(cx) {
+                Poll::Ready(Err(err)) => {
+                    if !err.is_disconnected() {
+                        self.wildcard_listeners.push(sub)
+                    }
+                }
+                _ => self.wildcard_listeners.push(sub),
+            }
+        }
     }
 }
 
@@ -107,6 +146,8 @@ pub struct EventListenerRequest {
     kind: EventKind,
     /// Optional channel to acknowledge that the listener was registered
     ack: Option<oneshot::Sender<()>>,
+    /// If true, this listener receives all events regardless of method
+    wildcard: bool,
 }
 
 impl EventListenerRequest {
@@ -116,6 +157,7 @@ impl EventListenerRequest {
             method: T::method_id(),
             kind: T::event_kind(),
             ack: None,
+            wildcard: false,
         }
     }
 
@@ -129,6 +171,18 @@ impl EventListenerRequest {
             method: T::method_id(),
             kind: T::event_kind(),
             ack: Some(ack),
+            wildcard: false,
+        }
+    }
+
+    /// Create a wildcard listener request that receives all events
+    pub fn wildcard(listener: UnboundedSender<Arc<dyn Event>>, ack: oneshot::Sender<()>) -> Self {
+        Self {
+            listener,
+            method: "".into(), // unused for wildcard
+            kind: EventKind::BuiltIn,
+            ack: Some(ack),
+            wildcard: true,
         }
     }
 }
@@ -229,6 +283,32 @@ impl<T: IntoEventKind + Unpin> Stream for EventStream<T> {
     }
 }
 
+/// A stream that receives all CDP events regardless of type.
+///
+/// Unlike `EventStream<T>` which filters for a specific event type,
+/// `AnyEventStream` yields every event as `Arc<dyn Event>`.
+/// To identify and work with specific event types, downcast using
+/// `event.into_any_arc().downcast::<T>()` where `T` is the concrete event type.
+#[derive(Debug)]
+pub struct AnyEventStream {
+    events: UnboundedReceiver<Arc<dyn Event>>,
+}
+
+impl AnyEventStream {
+    pub fn new(events: UnboundedReceiver<Arc<dyn Event>>) -> Self {
+        Self { events }
+    }
+}
+
+impl Stream for AnyEventStream {
+    type Item = Arc<dyn Event>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let pin = self.get_mut();
+        Stream::poll_next(Pin::new(&mut pin.events), cx)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use futures::{SinkExt, StreamExt};
@@ -295,6 +375,7 @@ mod tests {
             kind: EventAnimationCanceled::event_kind(),
             listener: tx,
             ack: None,
+            wildcard: false,
         });
 
         listeners.start_send(event.clone());
@@ -313,5 +394,71 @@ mod tests {
 
         let next = stream.next().await.unwrap();
         assert_eq!(&*next, &event);
+    }
+
+    #[tokio::test]
+    async fn wildcard_listeners() {
+        use chromiumoxide_cdp::cdp::browser_protocol::page::EventFrameStartedLoading;
+
+        let (typed_tx, typed_rx) = futures::channel::mpsc::unbounded();
+        let (wildcard_tx, wildcard_rx) = futures::channel::mpsc::unbounded();
+        let mut listeners = EventListeners::default();
+
+        // Register a typed listener for AnimationCanceled
+        listeners.add_listener(EventListenerRequest {
+            method: EventAnimationCanceled::method_id(),
+            kind: EventAnimationCanceled::event_kind(),
+            listener: typed_tx,
+            ack: None,
+            wildcard: false,
+        });
+
+        // Register a wildcard listener
+        listeners.add_listener(EventListenerRequest {
+            method: "".into(),
+            kind: EventKind::BuiltIn,
+            listener: wildcard_tx,
+            ack: None,
+            wildcard: true,
+        });
+
+        // Send two different event types
+        let animation_event = EventAnimationCanceled {
+            id: "anim1".to_string(),
+        };
+        let frame_event = EventFrameStartedLoading {
+            frame_id: "frame1".to_string().into(),
+        };
+
+        listeners.start_send(animation_event.clone());
+        listeners.start_send(frame_event.clone());
+
+        let mut typed_stream = EventStream::<EventAnimationCanceled>::new(typed_rx);
+        let mut wildcard_stream = AnyEventStream::new(wildcard_rx);
+
+        tokio::spawn(async move {
+            loop {
+                std::future::poll_fn(|cx| {
+                    listeners.poll(cx);
+                    Poll::Pending
+                })
+                .await
+            }
+        });
+
+        // Typed stream should only receive AnimationCanceled
+        let typed_event = typed_stream.next().await.unwrap();
+        assert_eq!(&*typed_event, &animation_event);
+
+        // Wildcard stream should receive both events in order
+        // First event: AnimationCanceled
+        let wild_event1 = wildcard_stream.next().await.unwrap();
+        let downcast1: Arc<EventAnimationCanceled> = wild_event1.into_any_arc().downcast().unwrap();
+        assert_eq!(&*downcast1, &animation_event);
+
+        // Second event: FrameStartedLoading
+        let wild_event2 = wildcard_stream.next().await.unwrap();
+        let downcast2: Arc<EventFrameStartedLoading> = wild_event2.into_any_arc().downcast().unwrap();
+        assert_eq!(&*downcast2, &frame_event);
     }
 }
